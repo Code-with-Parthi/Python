@@ -13,6 +13,61 @@
           ]
         },
         {
+          "name": "ShowTimeIntent",
+          "samples": [
+            "what time is it",
+            "tell me the time",
+            "current time",
+            "what's the time"
+          ]
+        },
+        {
+          "name": "CreateListIntent",
+          "samples": [
+            "create grocery list",
+            "start grocery list",
+            "new grocery list"
+          ]
+        },
+        {
+          "name": "AddItemIntent",
+          "slots": [
+            { "name": "Item", "type": "AMAZON.SearchQuery" }
+          ],
+          "samples": [
+            "add {Item} to my grocery list",
+            "add {Item}",
+            "put {Item} on my list"
+          ]
+        },
+        {
+          "name": "RemoveItemIntent",
+          "slots": [
+            { "name": "Item", "type": "AMAZON.SearchQuery" }
+          ],
+          "samples": [
+            "remove {Item} from my grocery list",
+            "delete {Item}",
+            "remove {Item}"
+          ]
+        },
+        {
+          "name": "ClearListIntent",
+          "samples": [
+            "clear my grocery list",
+            "delete my grocery list",
+            "empty my grocery list"
+          ]
+        },
+        {
+          "name": "ShowListIntent",
+          "samples": [
+            "show my grocery list",
+            "what's on my grocery list",
+            "list my groceries"
+          ]
+        },
+        {
           "name": "AMAZON.HelpIntent",
           "samples": []
         },

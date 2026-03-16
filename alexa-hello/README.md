@@ -64,6 +64,14 @@ Create the Alexa Skill (Developer Console)
 Testing
 - Use the Test tab in the Developer Console (enable testing) and type or speak "open hello sample" or "ask hello sample to say hello".
 - On a physical Echo Show linked to the same Amazon account, say "Alexa, open hello sample".
+ - Ask for the current time: "ask hello sample what time is it" or "ask hello sample to tell me the time".
+ - On a physical Echo Show linked to the same Amazon account, say "Alexa, open hello sample".
+ - Grocery list examples:
+   - Create a list: "create grocery list".
+   - Add an item: "add milk to my grocery list" or "add eggs".
+   - Remove an item: "remove milk from my grocery list".
+   - Show list: "show my grocery list" or "what's on my grocery list".
+   - Clear list: "clear my grocery list".
 
 Notes and tips
 - When packaging locally, ensure `ask-sdk-core` is included in the zip (installed into `package/` as shown).

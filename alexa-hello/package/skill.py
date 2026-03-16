@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
@@ -52,6 +53,18 @@ class HelloIntentHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
+class ShowTimeIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return is_intent_name("ShowTimeIntent")(handler_input)
+
+    def handle(self, handler_input):
+        now = datetime.now()
+        time_str = now.strftime("%I:%M %p")
+        speech = f"The current time is {time_str}."
+        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        return handler_input.response_builder.response
+
+
 class SessionEndedRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return is_request_type("SessionEndedRequest")(handler_input)
@@ -63,6 +76,7 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(HelloIntentHandler())
+sb.add_request_handler(ShowTimeIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
 lambda_handler = sb.lambda_handler()
