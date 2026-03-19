@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
@@ -64,6 +65,44 @@ class ShowTimeIntentHandler(AbstractRequestHandler):
         handler_input.response_builder.speak(speech).set_should_end_session(True)
         return handler_input.response_builder.response
 
+# News fetcher: read Vikatan RSS feed and return top headlines
+import urllib.request
+import xml.etree.ElementTree as ET
+
+VIKATAN_RSS = "https://www.vikatan.com/api/v1/collections/latest-news.rss?&time-period=last-24-hours"
+
+def fetch_vikatan_headlines(limit=3):
+    try:
+        with urllib.request.urlopen(VIKATAN_RSS, timeout=5) as resp:
+            data = resp.read()
+        root = ET.fromstring(data)
+        # RSS feeds typically have channel/item/title
+        titles = []
+        for item in root.findall('.//item'):
+            title_el = item.find('title')
+            if title_el is not None and title_el.text:
+                titles.append(title_el.text.strip())
+            if len(titles) >= limit:
+                break
+        return titles
+    except Exception:
+        return []
+
+
+class ReadNewsIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return is_intent_name("ReadNewsIntent")(handler_input)
+
+    def handle(self, handler_input):
+        headlines = fetch_vikatan_headlines(limit=3)
+        if not headlines:
+            speech = "Sorry, I couldn't fetch the news right now."
+        else:
+            speech = "Here are the latest Vikatan headlines: " + " ... ".join(headlines)
+
+        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        return handler_input.response_builder.response
+
 
 class SessionEndedRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
@@ -77,6 +116,7 @@ sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(HelloIntentHandler())
 sb.add_request_handler(ShowTimeIntentHandler())
+sb.add_request_handler(ReadNewsIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
 lambda_handler = sb.lambda_handler()

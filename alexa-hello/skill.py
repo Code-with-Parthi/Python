@@ -65,111 +65,51 @@ class ShowTimeIntentHandler(AbstractRequestHandler):
         handler_input.response_builder.speak(speech).set_should_end_session(True)
         return handler_input.response_builder.response
 
+# News fetcher: read Vikatan RSS feed and return top headlines
+import urllib.request
+import xml.etree.ElementTree as ET
+import ssl
 
-# Grocery list helpers (ephemeral storage using /tmp)
-GROCERY_FILE = os.environ.get("GROCERY_FILE", "/tmp/grocery.json")
+VIKATAN_RSS = "https://www.vikatan.com/api/v1/collections/latest-news.rss?&time-period=last-24-hours"
 
-def load_grocery_list():
+def fetch_vikatan_headlines(limit=3):
     try:
-        if os.path.exists(GROCERY_FILE):
-            with open(GROCERY_FILE, "r") as f:
-                return json.load(f)
-    except Exception:
-        pass
-    return []
+        # Create a default context and then disable verification
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(VIKATAN_RSS, timeout=5, context=ctx) as resp:
+            data = resp.read()
+            print(data)  # Debug: print raw RSS data
+        root = ET.fromstring(data)
+        # RSS feeds typically have channel/item/title
+        titles = []
+        for item in root.findall('.//item'):
+            title_el = item.find('title')
+            if title_el is not None and title_el.text:
+                titles.append(title_el.text.strip())
+            if len(titles) >= limit:
+                break
+        print(titles)
+        return titles
+    except Exception as e:
+        print("Error fetching Vikatan RSS feed")
+        print(e.__str__)
+        return []
 
-def save_grocery_list(items):
-    try:
-        with open(GROCERY_FILE, "w") as f:
-            json.dump(items, f)
-    except Exception:
-        pass
 
-
-class CreateListIntentHandler(AbstractRequestHandler):
+class ReadNewsIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return is_intent_name("CreateListIntent")(handler_input)
+        return is_intent_name("ReadNewsIntent")(handler_input)
 
     def handle(self, handler_input):
-        save_grocery_list([])
-        speech = "Created an empty grocery list. You can add items by saying, add milk."
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
-        return handler_input.response_builder.response
-
-
-class AddItemIntentHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return is_intent_name("AddItemIntent")(handler_input)
-
-    def handle(self, handler_input):
-        slots = getattr(handler_input.request_envelope.request.intent, "slots", {})
-        item = None
-        if slots and "Item" in slots and slots["Item"].value:
-            item = slots["Item"].value
-
-        if not item:
-            handler_input.response_builder.speak("I didn't catch the item. What would you like to add?").ask("What should I add?")
-            return handler_input.response_builder.response
-
-        items = load_grocery_list()
-        items.append(item)
-        save_grocery_list(items)
-        speech = f"Added {item} to your grocery list."
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
-        return handler_input.response_builder.response
-
-
-class RemoveItemIntentHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return is_intent_name("RemoveItemIntent")(handler_input)
-
-    def handle(self, handler_input):
-        slots = getattr(handler_input.request_envelope.request.intent, "slots", {})
-        item = None
-        if slots and "Item" in slots and slots["Item"].value:
-            item = slots["Item"].value
-
-        if not item:
-            handler_input.response_builder.speak("Which item should I remove?").ask("Which item should I remove?")
-            return handler_input.response_builder.response
-
-        items = load_grocery_list()
-        lowered = [i.lower() for i in items]
-        if item.lower() in lowered:
-            idx = lowered.index(item.lower())
-            removed = items.pop(idx)
-            save_grocery_list(items)
-            speech = f"Removed {removed} from your grocery list."
+        headlines = fetch_vikatan_headlines(limit=3)
+        if not headlines:
+            speech = "Sorry, I couldn't fetch the news right now."
         else:
-            speech = f"I couldn't find {item} on your list."
+            speech = "Here are the latest Vikatan headlines: " + " ... ".join(headlines)
 
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
-        return handler_input.response_builder.response
-
-
-class ClearListIntentHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return is_intent_name("ClearListIntent")(handler_input)
-
-    def handle(self, handler_input):
-        save_grocery_list([])
-        speech = "Cleared your grocery list."
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
-        return handler_input.response_builder.response
-
-
-class ShowListIntentHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return is_intent_name("ShowListIntent")(handler_input)
-
-    def handle(self, handler_input):
-        items = load_grocery_list()
-        if not items:
-            speech = "Your grocery list is empty."
-        else:
-            speech = "Your grocery list contains: " + ", ".join(items)
-
-        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        handler_input.response_builder.speak(speech).set_should_end_session(True)
         return handler_input.response_builder.response
 
 
@@ -185,6 +125,10 @@ sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(HelloIntentHandler())
 sb.add_request_handler(ShowTimeIntentHandler())
+sb.add_request_handler(ReadNewsIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
 lambda_handler = sb.lambda_handler()
+
+if __name__ == "__main__":
+    fetch_vikatan_headlines()
