@@ -24,11 +24,12 @@
         {
           "name": "ReadNewsIntent",
           "samples": [
-            "read vikatan news",
-            "read latest vikatan headlines",
-            "read the news",
-            "what's the news",
-            "read me vikatan news"
+                "read vikatan news",
+                "get vikatan news",
+                "tell me vikatan news",
+                "give me vikatan news",
+                "what is vikatan news",
+                "latest vikatan news"
           ]
         },
         {

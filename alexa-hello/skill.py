@@ -40,7 +40,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
                 )
             )
 
-        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 
@@ -50,7 +50,7 @@ class HelloIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         speech = "Hello from your Echo Show!"
-        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 
@@ -62,39 +62,42 @@ class ShowTimeIntentHandler(AbstractRequestHandler):
         now = datetime.now()
         time_str = now.strftime("%I:%M %p")
         speech = f"The current time is {time_str}."
-        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 # News fetcher: read Vikatan RSS feed and return top headlines
-import urllib.request
+import requests
 import xml.etree.ElementTree as ET
-import ssl
+import html
 
 VIKATAN_RSS = "https://www.vikatan.com/api/v1/collections/latest-news.rss?&time-period=last-24-hours"
 
 def fetch_vikatan_headlines(limit=3):
     try:
-        # Create a default context and then disable verification
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        with urllib.request.urlopen(VIKATAN_RSS, timeout=5, context=ctx) as resp:
-            data = resp.read()
-            print(data)  # Debug: print raw RSS data
+        resp = requests.get(VIKATAN_RSS, timeout=6)
+        resp.raise_for_status()
+        data = resp.content
         root = ET.fromstring(data)
         # RSS feeds typically have channel/item/title
         titles = []
         for item in root.findall('.//item'):
             title_el = item.find('title')
             if title_el is not None and title_el.text:
-                titles.append(title_el.text.strip())
+                # strip HTML entities and surrounding whitespace
+                txt = html.unescape(title_el.text).strip()
+                # remove CDATA markers if present
+                if txt.startswith('<![CDATA[') and txt.endswith(']]>'):
+                    txt = txt[9:-3].strip()
+                titles.append(txt)
             if len(titles) >= limit:
                 break
-        print(titles)
         return titles
     except Exception as e:
-        print("Error fetching Vikatan RSS feed")
-        print(e.__str__)
+        # Log error for CloudWatch
+        try:
+            print("Error fetching Vikatan RSS feed:", str(e))
+        except Exception:
+            pass
         return []
 
 
@@ -109,7 +112,7 @@ class ReadNewsIntentHandler(AbstractRequestHandler):
         else:
             speech = "Here are the latest Vikatan headlines: " + " ... ".join(headlines)
 
-        handler_input.response_builder.speak(speech).set_should_end_session(True)
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
 
