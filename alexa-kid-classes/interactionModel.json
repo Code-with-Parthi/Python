@@ -1,93 +1,192 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "kid classes",
-      "intents": [
-        {
-          "name": "AddClassIntent",
-          "slots": [
-            { "name": "ClassName", "type": "AMAZON.AlphaNumeric" },
-            { "name": "Day", "type": "AMAZON.DayOfWeek" },
-            { "name": "Time", "type": "AMAZON.TIME" },
-            { "name": "Instructor", "type": "AMAZON.Person" },
-            { "name": "Cost", "type": "AMAZON.NUMBER" }
-          ],
-          "samples": [
-            "add {ClassName}",
-            "add {ClassName} on {Day} at {Time}",
-            "add {ClassName} taught by {Instructor}",
-            "add {ClassName} on {Day} at {Time} with {Instructor} for {Cost} dollars"
-          ]
-        },
-        {
-          "name": "ListClassesIntent",
-          "samples": [
-            "list my classes",
-            "show all classes",
-            "what classes are scheduled",
-            "tell me my classes"
-          ]
-        },
-        {
-          "name": "RecordAttendanceIntent",
-          "slots": [
-            { "name": "ClassName", "type": "AMAZON.AlphaNumeric" },
-            { "name": "AttendanceStatus", "type": "AMAZON.Ordinal" }
-          ],
-          "samples": [
-            "record attendance for {ClassName}",
-            "mark {ClassName} as {AttendanceStatus}",
-            "did the child attend {ClassName}"
-          ]
-        },
-        {
-          "name": "CheckPaymentIntent",
-          "slots": [
-            { "name": "ClassName", "type": "AMAZON.AlphaNumeric" }
-          ],
-          "samples": [
-            "check payment for {ClassName}",
-            "what's the payment status",
-            "is {ClassName} paid"
-          ]
-        },
-        {
-          "name": "UpdatePaymentIntent",
-          "slots": [
-            { "name": "ClassName", "type": "AMAZON.AlphaNumeric" },
-            { "name": "PaymentStatus", "type": "AMAZON.AlphaNumeric" }
-          ],
-          "samples": [
-            "mark {ClassName} as {PaymentStatus}",
-            "update payment for {ClassName} to {PaymentStatus}",
-            "pay for {ClassName}"
-          ]
-        },
-        {
-          "name": "AttendanceReportIntent",
-          "slots": [
-            { "name": "ClassName", "type": "AMAZON.AlphaNumeric" }
-          ],
-          "samples": [
-            "attendance for {ClassName}",
-            "how many classes did the child attend",
-            "attendance report for {ClassName}"
-          ]
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "kid classes",
+            "intents": [
+                {
+                    "name": "AddClassIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        },
+                        {
+                            "name": "Day",
+                            "type": "AMAZON.DayOfWeek"
+                        },
+                        {
+                            "name": "Time",
+                            "type": "AMAZON.TIME"
+                        },
+                        {
+                            "name": "Instructor",
+                            "type": "AMAZON.FirstName"
+                        },
+                        {
+                            "name": "Cost",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "add {ClassName} class",
+                        "add {ClassName} class on {Day} at {Time}",
+                        "add {ClassName} taught by {Instructor}",
+                        "add {ClassName} on {Day} at {Time} with {Instructor} for {Cost} dollars"
+                    ]
+                },
+                {
+                    "name": "ListClassesIntent",
+                    "slots": [],
+                    "samples": [
+                        "list my classes",
+                        "show all classes",
+                        "what classes are scheduled",
+                        "tell me my classes"
+                    ]
+                },
+                {
+                    "name": "RecordAttendanceIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        },
+                        {
+                            "name": "AttendanceStatus",
+                            "type": "AttendanceStatusType"
+                        }
+                    ],
+                    "samples": [
+                        "record attendance for {ClassName}",
+                        "mark {ClassName} as {AttendanceStatus}",
+                        "did the child attend {ClassName}"
+                    ]
+                },
+                {
+                    "name": "CheckPaymentIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        }
+                    ],
+                    "samples": [
+                        "check payment for {ClassName}",
+                        "what's the payment status",
+                        "is {ClassName} paid"
+                    ]
+                },
+                {
+                    "name": "UpdatePaymentIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        },
+                        {
+                            "name": "PaymentStatus",
+                            "type": "PaymentStatusType"
+                        }
+                    ],
+                    "samples": [
+                        "mark {ClassName} as {PaymentStatus}",
+                        "update payment for {ClassName} to {PaymentStatus}",
+                        "pay for {ClassName}"
+                    ]
+                },
+                {
+                    "name": "AttendanceReportIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        }
+                    ],
+                    "samples": [
+                        "attendance for {ClassName}",
+                        "how many classes did the child attend",
+                        "attendance report for {ClassName}"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                }
+            ],
+            "types": [
+                {
+                    "name": "ClassNameType",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "music"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "skating"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "drawing"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "sports"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "AttendanceStatusType",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "attended"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "missed"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "PaymentStatusType",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "paid"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "pending"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "overdue"
+                            }
+                        }
+                    ]
+                }
+            ]
         }
-      ],
-      "types": []
     }
-  }
 }
