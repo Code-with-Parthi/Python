@@ -4,6 +4,9 @@ from datetime import datetime
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.utils import is_request_type, is_intent_name
+from ask_sdk_model.services.reminder_management import (
+    ReminderRequest, Trigger, TriggerType
+)
 
 # Data storage: using /tmp for ephemeral storage (use DynamoDB for production)
 CLASSES_FILE = os.environ.get("CLASSES_FILE", "/tmp/kid_classes.json")
@@ -39,6 +42,8 @@ class AddClassIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         slots = getattr(handler_input.request_envelope.request.intent, "slots", {})
+        session_attr = handler_input.attributes_manager.session_attributes
+        
         class_name = None
         day = None
         time = None
@@ -57,10 +62,32 @@ class AddClassIntentHandler(AbstractRequestHandler):
             if "Cost" in slots and slots["Cost"].value:
                 cost = slots["Cost"].value
 
+        # Check if we're in the middle of adding a class and just got the cost
+        if "add_class_state" in session_attr and not class_name:
+            class_name = session_attr["add_class_state"].get("class_name")
+            day = session_attr["add_class_state"].get("day", day)
+            time = session_attr["add_class_state"].get("time", time)
+            instructor = session_attr["add_class_state"].get("instructor", instructor)
+            cost = cost or session_attr["add_class_state"].get("cost")
+
         if not class_name:
             handler_input.response_builder.speak("What is the name of the class?").ask("Class name?")
             return handler_input.response_builder.response
 
+        if not cost:
+            # Save state and ask for cost
+            session_attr["add_class_state"] = {
+                "class_name": class_name,
+                "day": day,
+                "time": time,
+                "instructor": instructor
+            }
+            handler_input.attributes_manager.session_attributes = session_attr
+            handler_input.response_builder.speak("What is the cost of the class?").ask("Cost?")
+            return handler_input.response_builder.response
+
+        # All required info collected
+        session_attr.pop("add_class_state", None)
         classes = load_classes()
         class_id = class_name.lower().replace(" ", "_")
         
@@ -69,13 +96,14 @@ class AddClassIntentHandler(AbstractRequestHandler):
             "day": day or "Not set",
             "time": time or "Not set",
             "instructor": instructor or "Not set",
-            "cost": cost or "Not set",
+            "cost": cost,
             "attendance": [],
-            "payment_status": "pending"
+            "payment_status": "pending",
+            "reminder_id": None
         }
         save_classes(classes)
         
-        speech = f"Added {class_name} to the schedule."
+        speech = f"Added {class_name} to the schedule with cost {cost} dollars."
         handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
@@ -229,6 +257,107 @@ class AttendanceReportIntentHandler(AbstractRequestHandler):
         handler_input.response_builder.speak(speech).set_should_end_session(False)
         return handler_input.response_builder.response
 
+class PaymentReminderIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return is_intent_name("PaymentReminderIntent")(handler_input)
+
+    def handle(self, handler_input):
+        slots = getattr(handler_input.request_envelope.request.intent, "slots", {})
+        class_name = None
+        reminder_day = None
+
+        if slots:
+            if "ClassName" in slots and slots["ClassName"].value:
+                class_name = slots["ClassName"].value
+            if "ReminderDay" in slots and slots["ReminderDay"].value:
+                reminder_day = slots["ReminderDay"].value
+
+        if not class_name:
+            handler_input.response_builder.speak("Which class?").ask("Which class?")
+            return handler_input.response_builder.response
+
+        if not reminder_day:
+            handler_input.response_builder.speak("On which day of the month should I remind you?").ask("Day of month?")
+            return handler_input.response_builder.response
+
+        classes = load_classes()
+        class_id = class_name.lower().replace(" ", "_")
+
+        if class_id not in classes:
+            speech = f"Class {class_name} not found."
+            handler_input.response_builder.speak(speech).set_should_end_session(False)
+            return handler_input.response_builder.response
+
+        try:
+            reminder_mgmt = handler_input.service_client_factory.get_reminder_management_service()
+            
+            # Create recurring reminder for payment on specified day
+            trigger = Trigger(
+                type_=TriggerType.RECURRING,
+                recurrence_rules=["FREQ=MONTHLY;BYMONTHDAY=" + reminder_day],
+                time_zone_id="America/Los_Angeles"
+            )
+
+            reminder_request = ReminderRequest(
+                label=f"Payment reminder for {class_name}",
+                trigger=trigger,
+                push_notification=None
+            )
+
+            response = reminder_mgmt.create_reminder(reminder_request)
+            reminder_id = response.alert_token
+
+            # Save reminder ID to classes
+            classes[class_id]["reminder_id"] = reminder_id
+            save_classes(classes)
+
+            speech = f"Set payment reminder for {class_name} on day {reminder_day} of each month."
+        except Exception as e:
+            speech = f"Unable to set reminder. Please ensure reminders are enabled. Error: {str(e)}"
+
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        return handler_input.response_builder.response
+
+class TerminateClassIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        return is_intent_name("TerminateClassIntent")(handler_input)
+
+    def handle(self, handler_input):
+        slots = getattr(handler_input.request_envelope.request.intent, "slots", {})
+        class_name = None
+
+        if slots and "ClassName" in slots and slots["ClassName"].value:
+            class_name = slots["ClassName"].value
+
+        if not class_name:
+            handler_input.response_builder.speak("Which class do you want to terminate?").ask("Which class?")
+            return handler_input.response_builder.response
+
+        classes = load_classes()
+        class_id = class_name.lower().replace(" ", "_")
+
+        if class_id not in classes:
+            speech = f"Class {class_name} not found."
+            handler_input.response_builder.speak(speech).set_should_end_session(False)
+            return handler_input.response_builder.response
+
+        # Delete reminder if it exists
+        reminder_id = classes[class_id].get("reminder_id")
+        if reminder_id:
+            try:
+                reminder_mgmt = handler_input.service_client_factory.get_reminder_management_service()
+                reminder_mgmt.delete_reminder(reminder_id)
+            except Exception:
+                pass  # Silently fail if reminder deletion fails
+
+        # Delete the class
+        del classes[class_id]
+        save_classes(classes)
+
+        speech = f"Terminated {class_name} and removed all reminders."
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        return handler_input.response_builder.response
+
 class SessionEndedRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         return is_request_type("SessionEndedRequest")(handler_input)
@@ -236,14 +365,78 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         return handler_input.response_builder.response
 
+class AddClassCostFallbackHandler(AbstractRequestHandler):
+    """Handles cost input when AddClassIntent is waiting for it"""
+    def can_handle(self, handler_input):
+        session_attr = handler_input.attributes_manager.session_attributes
+        return "add_class_state" in session_attr
+
+    def handle(self, handler_input):
+        session_attr = handler_input.attributes_manager.session_attributes
+        state = session_attr.get("add_class_state", {})
+        
+        # Extract cost from the current request
+        request_intent = handler_input.request_envelope.request.intent
+        slots = getattr(request_intent, "slots", {})
+        cost = None
+        
+        # Try to get cost from multiple possible sources
+        if "Cost" in slots and slots["Cost"].value:
+            cost = slots["Cost"].value
+        elif hasattr(request_intent, 'name'):
+            # If it's a number-only utterance, try to extract it
+            try:
+                # Get the first slot value from any intent
+                for slot_name, slot_obj in slots.items():
+                    if slot_obj and hasattr(slot_obj, 'value') and slot_obj.value:
+                        cost = slot_obj.value
+                        break
+            except:
+                pass
+        
+        if not cost:
+            # Fallback: ask again
+            handler_input.response_builder.speak("I didn't catch the cost. What is the cost of the class?").ask("Cost?")
+            return handler_input.response_builder.response
+        
+        # Proceed with adding the class
+        class_name = state.get("class_name")
+        day = state.get("day", "Not set")
+        time = state.get("time", "Not set")
+        instructor = state.get("instructor", "Not set")
+        
+        classes = load_classes()
+        class_id = class_name.lower().replace(" ", "_")
+        
+        classes[class_id] = {
+            "name": class_name,
+            "day": day,
+            "time": time,
+            "instructor": instructor,
+            "cost": cost,
+            "attendance": [],
+            "payment_status": "pending",
+            "reminder_id": None
+        }
+        save_classes(classes)
+        session_attr.pop("add_class_state", None)
+        
+        speech = f"Added {class_name} to the schedule with cost {cost} dollars."
+        handler_input.response_builder.speak(speech).set_should_end_session(False)
+        return handler_input.response_builder.response
+
+
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
+sb.add_request_handler(AddClassCostFallbackHandler())  # Must come before other handlers
 sb.add_request_handler(AddClassIntentHandler())
 sb.add_request_handler(ListClassesIntentHandler())
 sb.add_request_handler(RecordAttendanceIntentHandler())
 sb.add_request_handler(CheckPaymentIntentHandler())
 sb.add_request_handler(UpdatePaymentIntentHandler())
 sb.add_request_handler(AttendanceReportIntentHandler())
+sb.add_request_handler(PaymentReminderIntentHandler())
+sb.add_request_handler(TerminateClassIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
 lambda_handler = sb.lambda_handler()

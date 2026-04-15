@@ -109,6 +109,41 @@
                     ]
                 },
                 {
+                    "name": "PaymentReminderIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        },
+                        {
+                            "name": "ReminderDay",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "set payment reminder for {ClassName}",
+                        "remind me to pay for {ClassName} on day {ReminderDay}",
+                        "create payment reminder for {ClassName} on {ReminderDay}",
+                        "add reminder for {ClassName} payment on the {ReminderDay}"
+                    ]
+                },
+                {
+                    "name": "TerminateClassIntent",
+                    "slots": [
+                        {
+                            "name": "ClassName",
+                            "type": "ClassNameType"
+                        }
+                    ],
+                    "samples": [
+                        "terminate {ClassName}",
+                        "delete {ClassName}",
+                        "remove {ClassName} class",
+                        "drop {ClassName}",
+                        "cancel {ClassName}"
+                    ]
+                },
+                {
                     "name": "AMAZON.HelpIntent",
                     "samples": []
                 },
@@ -147,6 +182,16 @@
                         {
                             "name": {
                                 "value": "sports"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "handwriting"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "martial arts"
                             }
                         }
                     ]
