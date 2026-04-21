@@ -1,4 +1,13 @@
-Flask==2.3.0
+Flask==3.0.0
 flask-cors==4.0.0
 requests==2.31.0
 python-dotenv==1.0.0
+
+# TTS Engines
+pyttsx3==2.90  # Built-in TTS (offline, all platforms)
+
+# Optional: For better quality
+# Uncomment to install:
+# TTS==0.15.0  # Coqui TTS (high quality, offline)
+# google-cloud-texttospeech==2.14.0  # Google Cloud TTS (professional quality)
+

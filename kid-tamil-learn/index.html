@@ -104,6 +104,48 @@
                 box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
             }
         }
+
+        /* Settings Modal */
+        #settingsModal {
+            backdrop-filter: blur(5px);
+        }
+
+        #settingsModal label {
+            transition: background-color 0.2s ease;
+        }
+
+        #settingsModal input[type="radio"]:checked + div {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: slider-horizontal;
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            outline: none;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: slider-thumb;
+            appearance: slider-thumb;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -129,9 +171,13 @@
                             <div class="text-xs opacity-90">Learn • Play • Grow</div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <div class="text-lg font-bold">⭐ <span id="score">0</span></div>
-                        <div class="text-xs">Level <span id="level">1</span></div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="openSettings()" class="bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded-full text-lg" title="Audio Settings">⚙️</button>
+                        <button onclick="toggleSound()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-full text-2xl" id="soundBtn" title="Toggle Sound">🔊</button>
+                        <div class="text-right">
+                            <div class="text-lg font-bold">⭐ <span id="score">0</span></div>
+                            <div class="text-xs">Level <span id="level">1</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -282,6 +328,83 @@
     <!-- Hidden audio element for Text-to-Speech -->
     <audio id="audioPlayer"></audio>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="text-2xl font-bold mb-6">🔊 Audio Settings</div>
+            
+            <div class="space-y-6">
+                <!-- Sound Toggle -->
+                <div>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="soundToggle" checked onchange="toggleSoundSetting()" class="w-5 h-5">
+                        <span class="text-lg font-bold">Enable Sound</span>
+                    </label>
+                </div>
+
+                <!-- TTS Method Selection -->
+                <div>
+                    <label class="block text-lg font-bold mb-3">🎤 Speech Engine:</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                            <input type="radio" name="ttsMethod" value="web" checked onchange="changeTTSMethod('web')" class="w-4 h-4">
+                            <div>
+                                <div class="font-bold">Built-in (Web Speech)</div>
+                                <div class="text-sm text-gray-600">Fast, built-in, no setup</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                            <input type="radio" name="ttsMethod" value="google" onchange="changeTTSMethod('google')" class="w-4 h-4">
+                            <div>
+                                <div class="font-bold">Google Cloud TTS ⭐</div>
+                                <div class="text-sm text-gray-600">Best quality, needs API key</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                            <input type="radio" name="ttsMethod" value="backend" onchange="changeTTSMethod('backend')" class="w-4 h-4">
+                            <div>
+                                <div class="font-bold">Local Backend 🐍</div>
+                                <div class="text-sm text-gray-600">Python + pyttsx3 (offline)</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Google API Key -->
+                <div id="googleApiSection" class="hidden">
+                    <label class="block text-lg font-bold mb-2">Google API Key:</label>
+                    <input type="password" id="googleApiKey" class="w-full border rounded-lg px-4 py-2 mb-2" placeholder="Paste your API key here">
+                    <div class="text-sm text-gray-600 mb-3">
+                        Get free key: <a href="https://cloud.google.com/text-to-speech" target="_blank" class="text-blue-600 hover:underline">cloud.google.com</a>
+                    </div>
+                    <button onclick="saveGoogleApiKey()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Save Key</button>
+                </div>
+
+                <!-- Speed Control -->
+                <div>
+                    <label class="block text-lg font-bold mb-3">Speed:</label>
+                    <input type="range" id="speechSpeed" min="0.5" max="1.5" step="0.1" value="0.9" class="w-full" onchange="updateSpeedLabel()">
+                    <div class="text-center text-sm text-gray-600 mt-1">
+                        <span id="speedLabel">0.9x (Normal)</span>
+                    </div>
+                </div>
+
+                <!-- Information -->
+                <div class="bg-blue-50 rounded-lg p-4 text-sm text-gray-700">
+                    <div class="font-bold mb-2">💡 Tips:</div>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Start with Built-in (Web Speech)</li>
+                        <li>Switch to Google for better quality</li>
+                        <li>Use Backend for offline learning</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Close Button -->
+            <button onclick="closeSettings()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-bold">Close</button>
+        </div>
+    </div>
+
     <script>
         // Data: Tamil Learning Content
         const tamil = {
@@ -341,6 +464,8 @@
             score: 0,
             level: 1,
             soundEnabled: true,
+            ttsMethod: localStorage.getItem('ttsMethod') || 'web', // web, google, or backend
+            speechSpeed: parseFloat(localStorage.getItem('speechSpeed')) || 0.9,
             currentLesson: null,
             currentLessonIndex: 0,
             currentGame: null,
@@ -360,6 +485,9 @@
                 document.getElementById('mainApp').classList.remove('hidden');
                 showHome();
                 registerServiceWorker();
+                
+                // Initialize speed label
+                updateSpeedLabel();
             }, 1000);
         });
 
@@ -522,20 +650,166 @@
             setTimeout(() => startGame('matching'), 1000);
         }
 
-        // Audio Playback
-        function playAudio(text) {
+        // Audio Playback with Multiple Engines
+        async function playAudio(text) {
             if (!state.soundEnabled) return;
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ta-IN';
-            utterance.rate = 0.8;
-            speechSynthesis.speak(utterance);
+            try {
+                // Use selected method
+                if (state.ttsMethod === 'google') {
+                    if (await tryGoogleTTS(text)) return;
+                } else if (state.ttsMethod === 'backend') {
+                    if (await playAudioFromBackend(text)) return;
+                }
+                
+                // Always fallback to Web Speech API
+                tryWebSpeechAPI(text);
+            } catch (error) {
+                console.error("Audio error:", error);
+                tryWebSpeechAPI(text);
+            }
+        }
+
+        // Method 1: Google Cloud Text-to-Speech (Free tier available)
+        // Sign up at: https://cloud.google.com/text-to-speech
+        async function tryGoogleTTS(text) {
+            const apiKey = localStorage.getItem('googleTTSKey') || '';
+            if (!apiKey) {
+                alert('❌ Please configure Google API Key in Settings');
+                return false;
+            }
+
+            try {
+                const response = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + apiKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input: { text: text },
+                        voice: {
+                            languageCode: 'ta-IN',
+                            name: 'ta-IN-Standard-A',
+                            ssmlGender: 'FEMALE'
+                        },
+                        audioConfig: {
+                            audioEncoding: 'MP3',
+                            pitch: 0,
+                            speakingRate: state.speechSpeed
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const audio = new Audio('data:audio/mp3;base64,' + data.audioContent);
+                    audio.play();
+                    return true;
+                } else {
+                    console.log("Google TTS error, falling back...");
+                }
+            } catch (error) {
+                console.log("Google TTS unavailable, using fallback...");
+            }
+            return false;
+        }
+
+        // Method 2: Local Backend (Optional - Use Python with pyttsx3 or Coqui)
+        async function playAudioFromBackend(text) {
+            try {
+                const response = await fetch('http://localhost:5000/api/speak', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text: text, 
+                        lang: 'ta',
+                        speed: state.speechSpeed
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const audio = new Audio('data:audio/wav;base64,' + data.audio);
+                    audio.play();
+                    return true;
+                }
+            } catch (error) {
+                console.log("Backend TTS unavailable, using Web Speech API...");
+            }
+            return false;
+        }
+
+        // Method 3: Web Speech API (Fallback - Built-in)
+        function tryWebSpeechAPI(text) {
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ta-IN';
+                utterance.rate = state.speechSpeed;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+                return true;
+            } catch (error) {
+                console.error("Web Speech API error:", error);
+                return false;
+            }
         }
 
         function toggleSound() {
             state.soundEnabled = !state.soundEnabled;
-            const btn = event.target.closest('button');
-            btn.textContent = state.soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundBtn').textContent = state.soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Settings Modal
+        function openSettings() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            const savedMethod = localStorage.getItem('ttsMethod') || 'web';
+            document.querySelector(`input[name="ttsMethod"][value="${savedMethod}"]`).checked = true;
+            updateGoogleApiSection();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function changeTTSMethod(method) {
+            state.ttsMethod = method;
+            localStorage.setItem('ttsMethod', method);
+            updateGoogleApiSection();
+        }
+
+        function updateGoogleApiSection() {
+            const googleSection = document.getElementById('googleApiSection');
+            const method = document.querySelector('input[name="ttsMethod"]:checked').value;
+            if (method === 'google') {
+                googleSection.classList.remove('hidden');
+                const savedKey = localStorage.getItem('googleTTSKey') || '';
+                document.getElementById('googleApiKey').value = savedKey;
+            } else {
+                googleSection.classList.add('hidden');
+            }
+        }
+
+        function saveGoogleApiKey() {
+            const key = document.getElementById('googleApiKey').value.trim();
+            if (key) {
+                localStorage.setItem('googleTTSKey', key);
+                alert('✅ Google API Key saved successfully!');
+            } else {
+                alert('❌ Please enter a valid API key');
+            }
+        }
+
+        function updateSpeedLabel() {
+            const speed = document.getElementById('speechSpeed').value;
+            state.speechSpeed = speed;
+            localStorage.setItem('speechSpeed', speed);
+            const label = speed == 0.5 ? 'Slow' : speed == 1.0 ? 'Normal' : speed >= 1.3 ? 'Fast' : 'Normal';
+            document.getElementById('speedLabel').textContent = speed + 'x (' + label + ')';
+        }
+
+        function toggleSoundSetting() {
+            state.soundEnabled = document.getElementById('soundToggle').checked;
+            document.getElementById('soundBtn').textContent = state.soundEnabled ? '🔊' : '🔇';
         }
 
         // Scoring
