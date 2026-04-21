@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Learning Adventure - Learn Tamil for Kids</title>
+    <meta name="description" content="Fun and interactive Tamil learning for kids with games, audio, and rewards">
+    <meta name="theme-color" content="#FF6B6B">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for Tamil Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FF6B6B' width='192' height='192'/><text x='50%' y='50%' font-size='96' fill='white' text-anchor='middle' dominant-baseline='central'>த</text></svg>">
+    
+    <style>
+        * {
+            font-family: 'Noto Sans Tamil', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .tamil-text {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .star-pop {
+            animation: starPop 0.6s ease-out forwards;
+        }
+        
+        @keyframes starPop {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.5);
+            }
+        }
+        
+        .flip {
+            animation: flip 0.6s ease-in-out;
+        }
+        
+        @keyframes flip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(90deg); }
+            100% { transform: rotateY(0deg); }
+        }
+        
+        .pulse-success {
+            animation: pulseSuccess 0.6s ease-out;
+        }
+        
+        @keyframes pulseSuccess {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(34, 197, 94, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="w-full h-screen flex items-center justify-center bg-gradient-to-b from-blue-400 to-purple-500">
+            <div class="text-center">
+                <div class="tamil-text text-white mb-4">தமிழ் கற்றல்</div>
+                <div class="text-white text-2xl mb-6">Tamil Learning Adventure</div>
+                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto"></div>
+            </div>
+        </div>
+
+        <!-- Main App Container -->
+        <div id="mainApp" class="hidden w-full min-h-screen pb-8">
+            <!-- Header with Score -->
+            <div class="sticky top-0 z-50 bg-gradient-to-r from-red-500 to-pink-500 text-white p-4 shadow-lg">
+                <div class="max-w-6xl mx-auto flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="tamil-text text-3xl">தமிழ்</div>
+                        <div class="hidden sm:block">
+                            <div class="font-bold text-lg">Tamil Adventure</div>
+                            <div class="text-xs opacity-90">Learn • Play • Grow</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-bold">⭐ <span id="score">0</span></div>
+                        <div class="text-xs">Level <span id="level">1</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="max-w-6xl mx-auto px-4 mt-6">
+                <!-- Home Screen -->
+                <div id="homeScreen" class="space-y-6">
+                    <!-- Welcome Card -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8 text-center bounce-in">
+                        <div class="tamil-text text-5xl mb-4">🎉 வரவேற்கிறோம்!</div>
+                        <div class="text-2xl font-bold text-gray-700 mb-2">Welcome to Tamil Learning!</div>
+                        <p class="text-gray-600 mb-6">Learn Tamil letters, words, and sounds in a fun way!</p>
+                    </div>
+
+                    <!-- Menu Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Letters Lesson -->
+                        <button onclick="startLesson('vowels')" class="card-hover bg-gradient-to-br from-blue-400 to-blue-600 rounded-3xl shadow-lg p-8 text-white text-center">
+                            <div class="text-6xl mb-4">🔤</div>
+                            <div class="tamil-text text-3xl mb-2">உயிர் எழுத்துக்கள்</div>
+                            <div class="text-xl font-bold">Tamil Vowels</div>
+                            <p class="text-sm mt-2 opacity-90">Learn 12 basic vowels</p>
+                        </button>
+
+                        <!-- Consonants Lesson -->
+                        <button onclick="startLesson('consonants')" class="card-hover bg-gradient-to-br from-green-400 to-green-600 rounded-3xl shadow-lg p-8 text-white text-center">
+                            <div class="text-6xl mb-4">📚</div>
+                            <div class="tamil-text text-3xl mb-2">மெய் எழுத்துக்கள்</div>
+                            <div class="text-xl font-bold">Consonants</div>
+                            <p class="text-sm mt-2 opacity-90">Learn 18 consonants</p>
+                        </button>
+
+                        <!-- Words -->
+                        <button onclick="startLesson('words')" class="card-hover bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl shadow-lg p-8 text-white text-center">
+                            <div class="text-6xl mb-4">🎯</div>
+                            <div class="tamil-text text-3xl mb-2">சொற்கள்</div>
+                            <div class="text-xl font-bold">Words</div>
+                            <p class="text-sm mt-2 opacity-90">Learn everyday words</p>
+                        </button>
+
+                        <!-- Games -->
+                        <button onclick="startGame('matching')" class="card-hover bg-gradient-to-br from-purple-400 to-purple-600 rounded-3xl shadow-lg p-8 text-white text-center">
+                            <div class="text-6xl mb-4">🎮</div>
+                            <div class="tamil-text text-3xl mb-2">விளையாட்டுகள்</div>
+                            <div class="text-xl font-bold">Games</div>
+                            <p class="text-sm mt-2 opacity-90">Play matching games</p>
+                        </button>
+                    </div>
+
+                    <!-- Progress Stats -->
+                    <div class="bg-white rounded-3xl shadow-lg p-8">
+                        <div class="text-center mb-6">
+                            <div class="text-3xl font-bold">📊 Your Progress</div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-2xl">
+                                <div class="text-3xl font-bold text-blue-600" id="vowelsLearned">0</div>
+                                <div class="text-sm text-gray-600">Vowels</div>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded-2xl">
+                                <div class="text-3xl font-bold text-green-600" id="consonantsLearned">0</div>
+                                <div class="text-sm text-gray-600">Consonants</div>
+                            </div>
+                            <div class="text-center p-4 bg-yellow-50 rounded-2xl">
+                                <div class="text-3xl font-bold text-yellow-600" id="wordsLearned">0</div>
+                                <div class="text-sm text-gray-600">Words</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 rounded-2xl">
+                                <div class="text-3xl font-bold text-purple-600" id="gamesPlayed">0</div>
+                                <div class="text-sm text-gray-600">Games</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson Screen -->
+                <div id="lessonScreen" class="hidden space-y-6">
+                    <!-- Lesson Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="goHome()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-bold">← Back</button>
+                        <div id="lessonTitle" class="text-2xl font-bold"></div>
+                        <button onclick="toggleSound()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-full text-2xl">🔊</button>
+                    </div>
+
+                    <!-- Lesson Content -->
+                    <div id="lessonContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamically filled -->
+                    </div>
+
+                    <!-- Lesson Card -->
+                    <div id="lessonCard" class="hidden bg-white rounded-3xl shadow-xl p-8 text-center">
+                        <div id="currentLetter" class="tamil-text text-7xl mb-6"></div>
+                        <div id="meaning" class="text-2xl font-bold text-gray-700 mb-4"></div>
+                        <div id="example" class="text-lg text-gray-600 mb-6"></div>
+                        <button onclick="playAudio()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg mb-4 w-full">🔊 Pronounce</button>
+                        <button onclick="nextLetter()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg w-full">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Game Screen -->
+                <div id="gameScreen" class="hidden space-y-6">
+                    <!-- Game Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="goHome()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-bold">← Back</button>
+                        <div id="gameTitle" class="text-2xl font-bold"></div>
+                        <div id="gameScore" class="text-lg font-bold">Score: 0</div>
+                    </div>
+
+                    <!-- Matching Game -->
+                    <div id="matchingGameContainer" class="hidden space-y-6">
+                        <div class="bg-white rounded-3xl shadow-xl p-8">
+                            <div class="text-center mb-6">
+                                <div class="text-xl font-bold text-gray-700">Match the letter to its sound</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div id="matchingLeft" class="space-y-4">
+                                    <!-- Left side letters -->
+                                </div>
+                                <div id="matchingRight" class="space-y-4">
+                                    <!-- Right side sounds/meanings -->
+                                </div>
+                            </div>
+                            <div class="mt-8 text-center">
+                                <button onclick="checkMatches()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg">Check Answers</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Game -->
+                    <div id="quizGameContainer" class="hidden">
+                        <div class="bg-white rounded-3xl shadow-xl p-8">
+                            <div class="text-center mb-8">
+                                <div id="quizQuestion" class="text-2xl font-bold text-gray-700 mb-4"></div>
+                                <div id="quizImage" class="text-6xl mb-4"></div>
+                            </div>
+                            <div id="quizOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <!-- Quiz options -->
+                            </div>
+                            <div id="quizFeedback" class="text-center text-lg font-bold hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden audio element for Text-to-Speech -->
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        // Data: Tamil Learning Content
+        const tamil = {
+            vowels: [
+                { letter: 'அ', meaning: 'a', example: 'அம்மா (Mother)', emoji: '👩' },
+                { letter: 'ஆ', meaning: 'aa', example: 'ஆடல் (Dancing)', emoji: '💃' },
+                { letter: 'இ', meaning: 'i', example: 'இன்பம் (Happiness)', emoji: '😊' },
+                { letter: 'ஈ', meaning: 'ee', example: 'ஈரம் (Moisture)', emoji: '💧' },
+                { letter: 'உ', meaning: 'u', example: 'உணவு (Food)', emoji: '🍚' },
+                { letter: 'ஊ', meaning: 'oo', example: 'ஊமை (Dumb)', emoji: '🤐' },
+                { letter: 'எ', meaning: 'e', example: 'எள் (Sesame)', emoji: '🌾' },
+                { letter: 'ஏ', meaning: 'eh', example: 'ஏணி (Ladder)', emoji: '🪜' },
+                { letter: 'ஐ', meaning: 'ai', example: 'ஐயம் (Doubt)', emoji: '🤔' },
+                { letter: 'ஒ', meaning: 'o', example: 'ஒழுங்கு (Order)', emoji: '📋' },
+                { letter: 'ஓ', meaning: 'oh', example: 'ஓடுதல் (Running)', emoji: '🏃' },
+                { letter: 'ஔ', meaning: 'ou', example: 'ஔவை (Ancient Poet)', emoji: '📖' }
+            ],
+            consonants: [
+                { letter: 'க', meaning: 'ka', example: 'கண் (Eye)', emoji: '👁️' },
+                { letter: 'ங', meaning: 'nga', example: 'ங (Nasal sound)', emoji: '👃' },
+                { letter: 'ச', meaning: 'cha', example: 'சொல் (Word)', emoji: '💬' },
+                { letter: 'ஞ', meaning: 'nya', example: 'ஞெஞ்ச (Hesitate)', emoji: '🤷' },
+                { letter: 'ட', meaning: 'ta', example: 'டொம்பு (Trunk)', emoji: '🐘' },
+                { letter: 'ண', meaning: 'na', example: 'ணீர் (Water)', emoji: '💧' },
+                { letter: 'த', meaning: 'tha', example: 'தமிழ் (Tamil)', emoji: '📚' },
+                { letter: 'ந', meaning: 'na', example: 'நல்லது (Good)', emoji: '👍' },
+                { letter: 'ப', meaning: 'pa', example: 'பாடல் (Song)', emoji: '🎵' },
+                { letter: 'ம', meaning: 'ma', example: 'மை (Ink)', emoji: '✏️' },
+                { letter: 'ய', meaning: 'ya', example: 'யாம் (I)', emoji: '👋' },
+                { letter: 'ர', meaning: 'ra', example: 'ரம்பம் (Dance)', emoji: '💃' },
+                { letter: 'ல', meaning: 'la', example: 'லட்சம் (Wealth)', emoji: '💰' },
+                { letter: 'வ', meaning: 'va', example: 'வாழ்க (Live)', emoji: '🌳' },
+                { letter: 'ழ', meaning: 'zha', example: 'ழிவு (Fall)', emoji: '📉' },
+                { letter: 'ள', meaning: 'la', example: 'ளவு (Quantity)', emoji: '📏' },
+                { letter: 'ற', meaning: 'ra', example: 'றிப்பு (Notice)', emoji: '📢' },
+                { letter: 'ன', meaning: 'na', example: 'னது (That)', emoji: '👉' }
+            ],
+            words: [
+                { word: 'அம்மா', meaning: 'Mother', emoji: '👩' },
+                { word: 'அப்பா', meaning: 'Father', emoji: '👨' },
+                { word: 'அண்ணி', meaning: 'Sister', emoji: '👧' },
+                { word: 'நீர்', meaning: 'Water', emoji: '💧' },
+                { word: 'உணவு', meaning: 'Food', emoji: '🍚' },
+                { word: 'நெருப்பு', meaning: 'Fire', emoji: '🔥' },
+                { word: 'பூ', meaning: 'Flower', emoji: '🌸' },
+                { word: 'பக்ஷி', meaning: 'Bird', emoji: '🐦' },
+                { word: 'பூனை', meaning: 'Cat', emoji: '🐱' },
+                { word: 'குதிரை', meaning: 'Horse', emoji: '🐴' },
+                { word: 'மரம்', meaning: 'Tree', emoji: '🌳' },
+                { word: 'சூரியன்', meaning: 'Sun', emoji: '☀️' }
+            ]
+        };
+
+        // State Management
+        const state = {
+            currentScreen: 'home',
+            score: 0,
+            level: 1,
+            soundEnabled: true,
+            currentLesson: null,
+            currentLessonIndex: 0,
+            currentGame: null,
+            gameData: [],
+            stats: {
+                vowelsLearned: 0,
+                consonantsLearned: 0,
+                wordsLearned: 0,
+                gamesPlayed: 0
+            }
+        };
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                showHome();
+                registerServiceWorker();
+            }, 1000);
+        });
+
+        // Navigation
+        function showHome() {
+            state.currentScreen = 'home';
+            document.getElementById('homeScreen').classList.remove('hidden');
+            document.getElementById('lessonScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            updateStats();
+        }
+
+        function goHome() {
+            showHome();
+        }
+
+        // Lessons
+        function startLesson(type) {
+            state.currentScreen = 'lesson';
+            state.currentLesson = type;
+            state.currentLessonIndex = 0;
+
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('lessonScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+
+            const lessonMap = {
+                'vowels': { title: '🔤 Tamil Vowels (உயிர் எழுத்துக்கள்)', data: tamil.vowels },
+                'consonants': { title: '📚 Tamil Consonants (மெய் எழுத்துக்கள்)', data: tamil.consonants },
+                'words': { title: '🎯 Tamil Words (சொற்கள்)', data: tamil.words }
+            };
+
+            document.getElementById('lessonTitle').textContent = lessonMap[type].title;
+
+            // Show all items in grid
+            const content = document.getElementById('lessonContent');
+            content.innerHTML = '';
+            
+            lessonMap[type].data.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-lg p-6 text-center card-hover';
+                card.onclick = () => showLessonDetail(index, lessonMap[type].data);
+                
+                const letter = item.letter || item.word;
+                const meaning = item.meaning;
+                const emoji = item.emoji || '📖';
+                
+                card.innerHTML = `
+                    <div class="text-5xl mb-3">${emoji}</div>
+                    <div class="tamil-text text-4xl mb-2">${letter}</div>
+                    <div class="text-gray-600 font-medium">${meaning}</div>
+                `;
+                
+                content.appendChild(card);
+            });
+        }
+
+        function showLessonDetail(index, data) {
+            state.currentLessonIndex = index;
+            const item = data[index];
+            const letter = item.letter || item.word;
+            const meaning = item.meaning;
+            const example = item.example || '';
+            const emoji = item.emoji || '📖';
+
+            document.getElementById('lessonContent').innerHTML = `
+                <div class="md:col-span-2 lg:col-span-3">
+                    <div class="bg-white rounded-3xl shadow-xl p-8 text-center bounce-in">
+                        <div class="text-6xl mb-6">${emoji}</div>
+                        <div class="tamil-text text-7xl mb-4">${letter}</div>
+                        <div class="text-2xl font-bold text-gray-700 mb-2">"${meaning}"</div>
+                        ${example ? `<div class="text-lg text-gray-600 mb-6 tamil-text">${example}</div>` : ''}
+                        
+                        <div class="flex gap-4 justify-center flex-wrap">
+                            <button onclick="playAudio('${letter}')" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg">🔊 Pronounce</button>
+                            <button onclick="startLesson('${state.currentLesson}')" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-full font-bold text-lg">Back to List</button>
+                        </div>
+                        
+                        <div class="mt-8 text-center">
+                            <button onclick="addScore(10)" class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg">✨ Got it! (+10)</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextLetter() {
+            const lessonMap = {
+                'vowels': tamil.vowels,
+                'consonants': tamil.consonants,
+                'words': tamil.words
+            };
+            const data = lessonMap[state.currentLesson];
+            if (state.currentLessonIndex < data.length - 1) {
+                showLessonDetail(state.currentLessonIndex + 1, data);
+            } else {
+                showHome();
+            }
+        }
+
+        // Games
+        function startGame(gameType) {
+            state.currentScreen = 'game';
+            state.currentGame = gameType;
+
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('lessonScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            if (gameType === 'matching') {
+                startMatchingGame();
+            } else if (gameType === 'quiz') {
+                startQuizGame();
+            }
+        }
+
+        function startMatchingGame() {
+            document.getElementById('gameTitle').textContent = '🎮 Matching Game';
+            document.getElementById('matchingGameContainer').classList.remove('hidden');
+            document.getElementById('quizGameContainer').classList.add('hidden');
+
+            // Mix vowels and consonants for variety
+            const allItems = [...tamil.vowels.slice(0, 6), ...tamil.consonants.slice(0, 6)];
+            const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+            
+            const left = shuffle([...allItems]);
+            const right = shuffle([...allItems]);
+
+            const leftContainer = document.getElementById('matchingLeft');
+            const rightContainer = document.getElementById('matchingRight');
+            
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
+
+            left.forEach((item, i) => {
+                const letter = item.letter || item.word;
+                const div = document.createElement('div');
+                div.className = 'bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-2xl p-4 tamil-text text-4xl text-center cursor-pointer card-hover';
+                div.textContent = letter;
+                div.dataset.index = i;
+                div.dataset.side = 'left';
+                leftContainer.appendChild(div);
+            });
+
+            right.forEach((item, i) => {
+                const meaning = item.meaning;
+                const emoji = item.emoji || '📖';
+                const div = document.createElement('div');
+                div.className = 'bg-gradient-to-r from-green-400 to-green-600 text-white rounded-2xl p-4 text-center cursor-pointer card-hover';
+                div.innerHTML = `<div class="text-2xl">${emoji}</div><div>${meaning}</div>`;
+                div.dataset.index = i;
+                div.dataset.side = 'right';
+                rightContainer.appendChild(div);
+            });
+        }
+
+        function checkMatches() {
+            addScore(20);
+            state.stats.gamesPlayed++;
+            setTimeout(() => startGame('matching'), 1000);
+        }
+
+        // Audio Playback
+        function playAudio(text) {
+            if (!state.soundEnabled) return;
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ta-IN';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            const btn = event.target.closest('button');
+            btn.textContent = state.soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Scoring
+        function addScore(points) {
+            state.score += points;
+            document.getElementById('score').textContent = state.score;
+
+            const level = Math.floor(state.score / 100) + 1;
+            if (level !== state.level) {
+                state.level = level;
+                document.getElementById('level').textContent = state.level;
+                showLevelUp();
+            }
+
+            // Show floating star
+            const star = document.createElement('div');
+            star.className = 'fixed text-4xl star-pop pointer-events-none';
+            star.textContent = '⭐ +' + points;
+            star.style.left = (Math.random() * window.innerWidth) + 'px';
+            star.style.top = '50%';
+            document.body.appendChild(star);
+
+            setTimeout(() => star.remove(), 600);
+        }
+
+        function showLevelUp() {
+            const msg = `Level Up! You're now Level ${state.level}! 🎉`;
+            alert(msg);
+        }
+
+        function updateStats() {
+            document.getElementById('vowelsLearned').textContent = state.stats.vowelsLearned;
+            document.getElementById('consonantsLearned').textContent = state.stats.consonantsLearned;
+            document.getElementById('wordsLearned').textContent = state.stats.wordsLearned;
+            document.getElementById('gamesPlayed').textContent = state.stats.gamesPlayed;
+        }
+
+        // PWA & Service Worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed'));
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') goHome();
+            if (e.key === ' ') playAudio(document.getElementById('currentLetter')?.textContent || '');
+        });
+    </script>
+</body>
+</html>

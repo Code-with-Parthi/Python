@@ -1,0 +1,215 @@
+<!-- 
+Advanced Features Configuration
+This file contains additional game and learning modules
+that can be imported into the main index.html
+-->
+
+<script>
+// Additional Games & Features
+const advancedGames = {
+    // Drag and Drop Game
+    dragDropGame: {
+        name: "Drag & Drop",
+        description: "Drag Tamil letters to match their sounds",
+        implement: function() {
+            console.log("Drag and drop game initialized");
+        }
+    },
+    
+    // Speech Recognition Game
+    speechGame: {
+        name: "Speak & Match",
+        description: "Say the letter sound, app recognizes it",
+        implement: function() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ta-IN';
+            console.log("Speech recognition initialized");
+        }
+    },
+    
+    // Typing Game
+    typingGame: {
+        name: "Type the Word",
+        description: "Type Tamil words using virtual keyboard",
+        implement: function() {
+            console.log("Typing game initialized");
+        }
+    },
+    
+    // Combo Builder
+    comboBuilderGame: {
+        name: "Build Words",
+        description: "Combine letters to form Tamil words",
+        implement: function() {
+            console.log("Combo builder initialized");
+        }
+    }
+};
+
+// Additional Content
+const advancedContent = {
+    // Complex Words
+    complexWords: [
+        { word: "வணக்கம்", meaning: "Hello/Respect", emoji: "🙏" },
+        { word: "நன்றி", meaning: "Thank you", emoji: "🙏" },
+        { word: "தயவு", meaning: "Please", emoji: "🤲" },
+        { word: "ம்", meaning: "Uh-huh", emoji: "👍" }
+    ],
+    
+    // Phrases
+    phrases: [
+        { phrase: "உன் பெயர் என்ன?", meaning: "What is your name?", emoji: "❓" },
+        { phrase: "நான் ... என்று சொல்கிறேன்", meaning: "My name is...", emoji: "🗣️" },
+        { phrase: "உனக்கு பிடிக்கிறதா?", meaning: "Do you like it?", emoji: "😊" }
+    ],
+    
+    // Numbers
+    numbers: [
+        { number: "ஒன்று", digit: 1, emoji: "1️⃣" },
+        { number: "இரண்டு", digit: 2, emoji: "2️⃣" },
+        { number: "மூன்று", digit: 3, emoji: "3️⃣" },
+        { number: "நான்கு", digit: 4, emoji: "4️⃣" },
+        { number: "ஐந்து", digit: 5, emoji: "5️⃣" },
+        { number: "ஆறு", digit: 6, emoji: "6️⃣" },
+        { number: "ஏழு", digit: 7, emoji: "7️⃣" },
+        { number: "எட்டு", digit: 8, emoji: "8️⃣" },
+        { number: "ஒன்பது", digit: 9, emoji: "9️⃣" },
+        { number: "பத்து", digit: 10, emoji: "🔟" }
+    ],
+    
+    // Colors
+    colors: [
+        { color: "சிவப்பு", meaning: "Red", hex: "#FF0000", emoji: "🔴" },
+        { color: "பச்சை", meaning: "Green", hex: "#00FF00", emoji: "🟢" },
+        { color: "நீலம்", meaning: "Blue", hex: "#0000FF", emoji: "🔵" },
+        { color: "மஞ்சள்", meaning: "Yellow", hex: "#FFFF00", emoji: "🟡" },
+        { color: "கருப்பு", meaning: "Black", hex: "#000000", emoji: "⚫" },
+        { color: "வெள்ளை", meaning: "White", hex: "#FFFFFF", emoji: "⚪" }
+    ],
+    
+    // Days of Week
+    daysOfWeek: [
+        { day: "திங்கட்கிழமை", meaning: "Monday", emoji: "📅" },
+        { day: "செவ்வாய்கிழமை", meaning: "Tuesday", emoji: "📅" },
+        { day: "புதன்கிழமை", meaning: "Wednesday", emoji: "📅" },
+        { day: "வியாழக்கிழமை", meaning: "Thursday", emoji: "📅" },
+        { day: "வெள்ளிக்கிழமை", meaning: "Friday", emoji: "📅" },
+        { day: "சனிக்கிழமை", meaning: "Saturday", emoji: "📅" },
+        { day: "ஞாயிற்றுக்கிழமை", meaning: "Sunday", emoji: "📅" }
+    ],
+    
+    // Body Parts
+    bodyParts: [
+        { part: "தலை", meaning: "Head", emoji: "🗣️" },
+        { part: "கண்", meaning: "Eye", emoji: "👁️" },
+        { part: "மூக்கு", meaning: "Nose", emoji: "👃" },
+        { part: "வாய்", meaning: "Mouth", emoji: "👄" },
+        { part: "காது", meaning: "Ear", emoji: "👂" },
+        { part: "கை", meaning: "Hand", emoji: "✋" },
+        { part: "கால்", meaning: "Foot", emoji: "🦶" },
+        { part: "நெஞ்சு", meaning: "Chest", emoji: "💪" }
+    ]
+};
+
+// Advanced Learning Strategies
+const learningStrategies = {
+    // Spaced Repetition
+    spacedRepetition: {
+        day1: "Learn letter",
+        day3: "Review letter",
+        day7: "Apply in words",
+        day14: "Use in sentences",
+        day30: "Master!"
+    },
+    
+    // Chunking Method
+    chunking: {
+        chunk1: "Learn 3-4 vowels together",
+        chunk2: "Learn 3-4 consonants together",
+        chunk3: "Combine in words",
+        chunk4: "Use in phrases"
+    },
+    
+    // Active Recall
+    activeRecall: {
+        step1: "Hide answers",
+        step2: "Recall from memory",
+        step3: "Check yourself",
+        step4: "Review mistakes"
+    }
+};
+
+// Gamification Progression
+const achievementSystem = {
+    badges: {
+        "vowel_master": { name: "Vowel Master", icon: "🔤", requirement: "Learn all 12 vowels" },
+        "consonant_king": { name: "Consonant King", icon: "👑", requirement: "Learn all 18 consonants" },
+        "word_wizard": { name: "Word Wizard", icon: "✨", requirement: "Learn 50 words" },
+        "story_teller": { name: "Story Teller", icon: "📚", requirement: "Complete 5 stories" },
+        "game_genius": { name: "Game Genius", icon: "🎮", requirement: "Win 10 games" },
+        "daily_champion": { name: "Daily Champion", icon: "🏆", requirement: "Learn for 7 days straight" },
+        "speed_learner": { name: "Speed Learner", icon: "⚡", requirement: "Complete lesson in <5 mins" },
+        "perfect_score": { name: "Perfect Score", icon: "💯", requirement: "Get 100% in quiz" }
+    },
+    
+    levels: {
+        1: { name: "Beginner", range: "0-99 points" },
+        2: { name: "Starter", range: "100-199 points" },
+        3: { name: "Learner", range: "200-299 points" },
+        4: { name: "Student", range: "300-499 points" },
+        5: { name: "Scholar", range: "500-699 points" },
+        6: { name: "Expert", range: "700-999 points" },
+        7: { name: "Master", range: "1000+ points" }
+    }
+};
+
+// Parent/Teacher Dashboard Data
+const dashboardMetrics = {
+    studentMetrics: {
+        totalLessonsCompleted: 0,
+        totalGameScore: 0,
+        correctAnswers: 0,
+        streakDays: 0,
+        timeSpentLearning: 0,
+        favoriteModule: "",
+        weakAreas: [],
+        strongAreas: []
+    },
+    
+    classMetrics: {
+        totalStudents: 0,
+        averageScore: 0,
+        topPerformers: [],
+        needsHelp: [],
+        completionRate: 0
+    }
+};
+
+// Advanced Settings
+const advancedSettings = {
+    accessibility: {
+        fontSize: "medium",
+        contrast: "normal",
+        animations: true,
+        soundEnabled: true
+    },
+    
+    learningPreferences: {
+        pace: "normal", // slow, normal, fast
+        style: "visual", // visual, audio, kinesthetic, mixed
+        difficulty: "adaptive", // easy, medium, hard, adaptive
+        focusArea: "all" // vowels, consonants, words, all
+    },
+    
+    parentalControls: {
+        screenTimeLimit: 60, // minutes
+        contentFilter: "strict", // off, moderate, strict
+        dailyReminders: true,
+        progressNotifications: true
+    }
+};
+
+console.log("Advanced features loaded successfully!");
+console.log("Available features:", Object.keys(advancedGames));
+console.log("Available content types:", Object.keys(advancedContent));
+</script>
